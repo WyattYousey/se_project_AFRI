@@ -80,8 +80,27 @@ All production Gemini API calls originate **server-side only**.
 
 ## Visuals
 
-Screenshots and demo visuals are **not yet included**.  
-(Planned for a future iteration.)
+### Initial State (Before Image Upload)
+
+The application starts in a neutral inspection state, allowing users to upload a baseline image and a new image for comparison.
+
+![Initial state before images are uploaded](./docs/images/before-upload.png)
+
+---
+
+### Analysis in Progress (Loading State)
+
+Once both images are provided, AFRI sends them to the server-side Gemini integration for analysis. During this phase, the UI reflects an active inspection state.
+
+![Loading state while Gemini analyzes the images](./docs/images/loading-state.png)
+
+---
+
+### Analysis Results (Post-Inspection)
+
+After the API returns, detected changes are highlighted directly on the image using bounding boxes. A structured summary below the images describes each change, including UX impact, accessibility impact, and confidence scores.
+
+![Analysis results with highlighted changes and summaries](./docs/images/analysis-results.png)
 
 ---
 
