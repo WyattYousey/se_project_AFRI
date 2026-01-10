@@ -1,0 +1,44 @@
+.change_items,
+.change_item__title,
+.change_item {
+  background-color: transparent;
+}
+
+.change_items {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgb(174, 204, 228);
+  border-radius: 8px;
+  font-family: "Ubuntu";
+  padding: 10px;
+}
+
+.change_items:hover {
+  cursor: pointer;
+}
+
+.change_items__notes {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  background-color: transparent;
+  border-radius: 8px;
+}
+
+.change_items__notes:hover {
+  border: 2px solid rgba(28, 28, 28, 0.45);
+  transform: scale(1.03);
+  transition: transform 0.2s linear;
+}
+
+.change_item__title {
+  font-weight: normal;
+  font-size: 18px;
+  border-bottom: 2px solid black;
+  padding-bottom: 5px;
+  width: 80%;
+}

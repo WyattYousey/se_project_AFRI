@@ -1,0 +1,27 @@
+* {
+  padding: 0;
+  margin: 0;
+  background-color: rgb(40, 40, 43);
+}
+
+.app__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  min-width: 100vh;
+  min-height: 100vh;
+}
+
+.app__title {
+  color: rgb(174, 204, 228);
+  font-family: "Ubuntu";
+  margin: 20px 35px;
+}
+
+.main__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

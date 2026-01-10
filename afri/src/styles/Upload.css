@@ -1,0 +1,21 @@
+.upload__container {
+  font-family: "Ubuntu";
+  color: rgb(174, 204, 228);
+}
+
+.upload__input {
+  margin-left: 8px;
+}
+
+.upload__input::file-selector-button {
+  font-family: "Ubuntu";
+  background-color: rgb(174, 204, 228);
+  border-radius: 8px;
+  border: none;
+  padding: 4px;
+}
+
+.upload__input::file-selector-button:hover {
+  background-color: rgb(6, 121, 214);
+  cursor: pointer;
+}

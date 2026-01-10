@@ -1,0 +1,31 @@
+.overlay {
+  box-sizing: border-box;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.06);
+  pointer-events: auto;
+  transition: box-shadow 120ms ease, transform 120ms ease, opacity 120ms ease;
+  opacity: 0.6;
+}
+
+/* Impact-specific styles */
+.overlay.impact-high {
+  background-color: rgba(255, 0, 0, 0.18);
+  border-color: rgba(255, 0, 0, 0.9);
+}
+
+.overlay.impact-medium {
+  background-color: rgba(255, 196, 0, 0.12);
+  border-color: rgba(255, 196, 0, 0.9);
+}
+
+.overlay.impact-low {
+  background-color: rgba(0, 160, 100, 0.12);
+  border-color: rgba(0, 160, 100, 0.9);
+}
+
+/* Active/highlighted style */
+.overlay.active {
+  transform: scale(1.03);
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.06) inset;
+  opacity: 1;
+}

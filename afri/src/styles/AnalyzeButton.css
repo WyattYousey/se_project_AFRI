@@ -1,0 +1,14 @@
+.analyze-btn {
+  font-family: "Ubuntu";
+  align-self: center;
+  max-width: 160px;
+  padding: 10px;
+  background-color: rgb(174, 204, 228);
+  border-radius: 8px;
+  border: none;
+}
+
+.analyze-btn:hover {
+  background-color: rgb(6, 121, 214);
+  cursor: pointer;
+}
