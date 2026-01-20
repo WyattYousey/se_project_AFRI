@@ -1,6 +1,6 @@
 import "../styles/App.css";
 import { AppProvider } from "../context/AppContext";
-import Viewer from "./Viewer";
+import ImageCompareViewer from "./ImageCompareViewer";
 import AnalysisPanel from "./AnalysisPanel";
 import AnalysisNotesModal from "./AnalysisNotesModal";
 
@@ -18,7 +18,7 @@ const App = () => (
         </p>
       </header>
       <div className="main__content">
-        <Viewer />
+        <ImageCompareViewer />
         <AnalysisPanel />
         <AnalysisNotesModal />
       </div>

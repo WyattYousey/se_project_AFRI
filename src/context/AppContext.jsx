@@ -8,6 +8,7 @@ const USE_MOCK_ANALYSIS = false;
 
 const AppContext = createContext();
 export const AppProvider = ({ children }) => {
+  const [isDragging, setDragging] = useState(false);
   const [baselineImage, setBaselineImage] = useState(null);
   const [newImage, setNewImage] = useState(null);
   const [analysis, setAnalysis] = useState(
@@ -387,6 +388,8 @@ export const AppProvider = ({ children }) => {
     viewer,
     setViewer,
     runInspection,
+    isDragging,
+    setDragging,
     isClientKeyPresent: Boolean(clientApiKey),
     isDev,
   };
