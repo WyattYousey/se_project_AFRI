@@ -3,7 +3,7 @@ import ChangeItem from "./ChangeItem";
 import "../styles/AnalysisPanel.css";
 
 const AnalysisPanel = () => {
-  const { analysis, status } = useAppContext();
+  const { changes, status } = useAppContext();
 
   if (status === "idle") return null;
   if (status === "analyzing")
@@ -15,7 +15,7 @@ const AnalysisPanel = () => {
 
   return (
     <div className="analysis_panel">
-      {analysis?.changes?.map((change, i) => (
+      {changes?.map((change, i) => (
         <ChangeItem key={change.id ?? i} change={change} />
       ))}
     </div>

@@ -3,7 +3,12 @@ import notesIcon from "../assets/notes_image.svg";
 import "../styles/ChangeItem.css";
 
 const ChangeItem = ({ change }) => {
-  const { highlightedChange, setHighlightedChange } = useAppContext();
+  const {
+    highlightedChange,
+    setHighlightedChange,
+    openNotesModal,
+    setActiveChangeId,
+  } = useAppContext();
 
   const isActive = highlightedChange === change.id;
   const impactClass = change.accessibilityImpact
@@ -21,11 +26,12 @@ const ChangeItem = ({ change }) => {
           className="change_items__notes"
           src={notesIcon}
           alt="Icon to access accessibility notes"
+          onClick={() => {
+            (openNotesModal(), setActiveChangeId(change.id));
+          }}
         />
       )}
-      <h2 className="change_item__title">
-        Change Summary: {change.description}
-      </h2>
+      <h2 className="change_item__title">Change: {change.label}</h2>
       <p className="change_item">UX Impact: {change.uxImpact}</p>
       <p className="change_item">
         Accessibility Impact: {change.accessibilityImpact}

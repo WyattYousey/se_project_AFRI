@@ -49,66 +49,68 @@ const ImageCompareViewer = () => {
   };
 
   /* Reusable Drop Zone renderer   */
+
   const renderDropZone = ({ type, image, withOverlay }) => {
     const inputId = `upload-${type}`;
 
     return (
       <div
         className={`viewer__drop_zone ${isDragging ? "dragging" : ""}`}
+        onClick={() => document.getElementById(inputId).click()}
         onDragEnter={(e) => {
-          preventDefaults(e);
+          e.preventDefault();
           setDragging(true);
         }}
-        onDragOver={preventDefaults}
+        onDragOver={(e) => e.preventDefault()}
         onDragLeave={() => setDragging(false)}
         onDrop={(e) => handleDrop(e, type)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            document.getElementById(inputId).click();
+          }
+        }}
       >
-        {/* Click-to-upload */}
-        <label htmlFor={inputId} className="drop_zone__label">
-          <input
-            id={inputId}
-            type="file"
-            accept="image/png, image/jpeg"
-            className="drop_zone__input"
-            onChange={(e) => handleFileInput(e, type)}
+        {/* Hidden input */}
+        <input
+          id={inputId}
+          type="file"
+          accept="image/png, image/jpeg"
+          className="drop_zone__input"
+          onChange={(e) => handleFileInput(e, type)}
+        />
+
+        {/* Empty state */}
+        {!image && (
+          <div className="drop_zone__placeholder">
+            <p className="drop_zone__title">
+              {type === "baseline" ? "Baseline Image" : "New Image"}
+            </p>
+            <p className="drop_zone__hint">
+              Click to upload or drag & drop an image
+            </p>
+          </div>
+        )}
+
+        {/* Image */}
+        {image && !withOverlay && (
+          <img
+            className="viewer__baseline_image"
+            src={image}
+            alt={`${type} UI`}
           />
+        )}
 
-          {/* Image + overlays */}
-          {!image && (
-            <div className="drop_zone__placeholder">
-              <p className="drop_zone__title">
-                {type === "baseline" ? "Baseline Image" : "New Image"}
-              </p>
-              <p className="drop_zone__hint">
-                Click to upload or drag & drop an image
-              </p>
-            </div>
-          )}
-          {withOverlay ? (
-            <div className="viewer__image_with_overlay">
-              {image && (
-                <img
-                  className="viewer__new_image"
-                  src={image}
-                  alt={`${type} UI`}
-                />
-              )}
-
-              {analysis &&
-                analysis.changes.map((change, i) => (
-                  <Overlay key={change.id ?? i} change={change} />
-                ))}
-            </div>
-          ) : (
-            image && (
-              <img
-                className="viewer__baseline_image"
-                src={image}
-                alt={`${type} UI`}
-              />
-            )
-          )}
-        </label>
+        {image && withOverlay && (
+          <div className="viewer__image_with_overlay">
+            <img className="viewer__new_image" src={image} alt={`${type} UI`} />
+            {analysis &&
+              analysis.changes.map((change, i) => (
+                <Overlay key={change.id ?? i} change={change} />
+              ))}
+          </div>
+        )}
       </div>
     );
   };

@@ -4,15 +4,17 @@ import { useEffect } from "react";
 import mockAnalysis from "../mocks/mockAnalysis";
 import test from "node:test";
 
-const USE_MOCK_ANALYSIS = false;
+const USE_MOCK_ANALYSIS = true;
 
 const AppContext = createContext();
 export const AppProvider = ({ children }) => {
+  const [activeChangeId, setActiveChangeId] = useState(null);
+  const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
   const [isDragging, setDragging] = useState(false);
   const [baselineImage, setBaselineImage] = useState(null);
   const [newImage, setNewImage] = useState(null);
   const [analysis, setAnalysis] = useState(
-    USE_MOCK_ANALYSIS ? mockAnalysis : null
+    USE_MOCK_ANALYSIS ? mockAnalysis : null,
   );
   const [status, setStatus] = useState(USE_MOCK_ANALYSIS ? "complete" : "idle"); // idle | analyzing | complete | error
   const [highlightedChange, setHighlightedChange] = useState(null);
@@ -24,7 +26,7 @@ export const AppProvider = ({ children }) => {
   const isDev = import.meta.env.DEV === true;
   if (clientApiKey && !isDev) {
     console.warn(
-      "VITE_GEMINI_API_KEY is set but the app is not running in development mode. For security, the client-side key will be ignored in production builds. Use a server-side GENAI_API_KEY instead."
+      "VITE_GEMINI_API_KEY is set but the app is not running in development mode. For security, the client-side key will be ignored in production builds. Use a server-side GENAI_API_KEY instead.",
     );
   }
 
@@ -91,7 +93,7 @@ export const AppProvider = ({ children }) => {
           if (!parsed || !Array.isArray(parsed.changes)) {
             console.warn(
               "[client] normalizeAnalysisClient: parsed missing 'changes' array",
-              parsed
+              parsed,
             );
             return { summary: parsed?.summary || "", changes: [] };
           }
@@ -101,7 +103,7 @@ export const AppProvider = ({ children }) => {
               if (!bbox) {
                 console.warn(
                   "[client] dropping change #" + idx + " due to invalid bbox",
-                  c
+                  c,
                 );
                 return null;
               }
@@ -118,7 +120,7 @@ export const AppProvider = ({ children }) => {
               confidence = Math.min(1, Math.max(0, confidence));
 
               const description = String(
-                c.description ?? c.label ?? c.changeType ?? ""
+                c.description ?? c.label ?? c.changeType ?? "",
               );
               const uxImpact = c.uxImpact ?? c.ux_impact ?? "Low";
               const accessibilityImpact =
@@ -131,11 +133,11 @@ export const AppProvider = ({ children }) => {
                 typeof c.contrastRatio === "number"
                   ? Number(c.contrastRatio)
                   : c.contrast_ratio === "unknown" ||
-                    c.contrastRatio === "unknown"
-                  ? "unknown"
-                  : typeof c.contrast_ratio === "number"
-                  ? Number(c.contrast_ratio)
-                  : "unknown";
+                      c.contrastRatio === "unknown"
+                    ? "unknown"
+                    : typeof c.contrast_ratio === "number"
+                      ? Number(c.contrast_ratio)
+                      : "unknown";
               const wcagAA_normal_pass =
                 c.wcagAA_normal_pass ?? c.wcag_aa_normal_pass ?? false;
               const wcagAA_large_pass =
@@ -324,10 +326,10 @@ export const AppProvider = ({ children }) => {
               } catch (e) {
                 console.error(
                   "[client] failed to parse JSON from model:",
-                  e.message
+                  e.message,
                 );
                 throw new Error(
-                  "Failed to parse JSON from model: " + e.message
+                  "Failed to parse JSON from model: " + e.message,
                 );
               }
               setAnalysis(parsed);
@@ -346,7 +348,7 @@ export const AppProvider = ({ children }) => {
             if (!response.ok) {
               return response.text().then((text) => {
                 throw new Error(
-                  "API request failed: " + (text || response.status)
+                  "API request failed: " + (text || response.status),
                 );
               });
             }
@@ -360,7 +362,7 @@ export const AppProvider = ({ children }) => {
               (data?.changes?.[0] && Array.isArray(data.changes[0].bbox));
             if (serverLooksUnnormalized) {
               console.warn(
-                "[client] server response appears unnormalized; applying client-side normalization"
+                "[client] server response appears unnormalized; applying client-side normalization",
               );
               final = normalizeAnalysisClient(data);
             }
@@ -374,6 +376,18 @@ export const AppProvider = ({ children }) => {
       });
   }
 
+  // Modal Control Functions
+
+  const changes = analysis?.changes ?? [];
+
+  const activeChange = changes.find((change) => change.id === activeChangeId);
+
+  const openNotesModal = () => setIsNotesModalOpen(true);
+
+  const closeNotesModal = () => setIsNotesModalOpen(false);
+
+  const toggleNotesModal = () => setIsNotesModalOpen((prev) => !prev);
+
   const value = {
     baselineImage,
     setBaselineImage,
@@ -381,6 +395,10 @@ export const AppProvider = ({ children }) => {
     setNewImage,
     analysis,
     setAnalysis,
+    changes,
+    activeChange,
+    activeChangeId,
+    setActiveChangeId,
     status,
     setStatus,
     highlightedChange,
@@ -392,6 +410,9 @@ export const AppProvider = ({ children }) => {
     setDragging,
     isClientKeyPresent: Boolean(clientApiKey),
     isDev,
+    isNotesModalOpen,
+    openNotesModal,
+    closeNotesModal,
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

@@ -23,13 +23,14 @@
 
 .viewer__drop_zone {
   position: relative;
-  background-color: rgb(174, 204, 228);
+  border: 2px solid rgb(174, 204, 228);
   border-radius: 14px;
   width: 600px;
   height: 338px;
   max-width: 600px;
   max-height: 338px;
   overflow: hidden;
+  cursor: pointer;
 }
 
 /* Drag state (visual feedback only, no overrides) */
@@ -60,7 +61,6 @@
   text-align: center;
   color: rgb(40, 60, 80);
   font-family: "Ubuntu";
-  pointer-events: none; /* click still passes to label */
 }
 
 .drop_zone__title {
@@ -119,7 +119,10 @@
   border: 2px solid rgba(255, 255, 255, 0.6);
   background-color: rgba(255, 255, 255, 0.06);
   pointer-events: auto;
-  transition: box-shadow 120ms ease, transform 120ms ease, opacity 120ms ease;
+  transition:
+    box-shadow 120ms ease,
+    transform 120ms ease,
+    opacity 120ms ease;
   opacity: 0.6;
 }
 
