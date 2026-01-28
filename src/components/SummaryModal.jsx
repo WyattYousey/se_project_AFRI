@@ -44,11 +44,14 @@ const SummaryModal = () => {
             <p className="summary_modal__overall_risk">
               Overall Risk: {summary?.overallRisk}
             </p>
+            <p className="summary_modal__total_changes">
+              Total Changes: {summary?.totalChanges}
+            </p>
             <ul className="summary_modal__top_changes">
-              Top 3 Changes:
+              <p className="summary_modal_changes_title">Top 3 Changes:</p>
               <li className="top_change">
                 <span className="change__label">
-                  Change: {summary?.topChanges[0]?.label}
+                  Change #1: {summary?.topChanges[0]?.label}
                 </span>
                 <span className="change__impact">
                   Impact: {summary?.topChanges[0]?.impact}
@@ -59,7 +62,7 @@ const SummaryModal = () => {
               </li>
               <li className="top_change">
                 <span className="change__label">
-                  Change: {summary?.topChanges[1]?.label}
+                  Change #2: {summary?.topChanges[1]?.label}
                 </span>
                 <span className="change__impact">
                   Impact: {summary?.topChanges[1]?.impact}
@@ -70,7 +73,7 @@ const SummaryModal = () => {
               </li>
               <li className="top_change">
                 <span className="change__label">
-                  Change: {summary?.topChanges[2]?.label}
+                  Change #3: {summary?.topChanges[2]?.label}
                 </span>
                 <span className="change__impact">
                   Impact: {summary?.topChanges[2]?.impact}
@@ -80,9 +83,6 @@ const SummaryModal = () => {
                 </span>
               </li>
             </ul>
-            <p className="summary_modal__total_changes">
-              Total Changes: {summary?.totalChanges}
-            </p>
           </div>
           <div className="summary__wrapper">
             <p className="summary_modal__summary_text">
