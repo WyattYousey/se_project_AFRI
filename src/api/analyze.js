@@ -399,118 +399,95 @@ export default async function handler(req, res) {
     ];
 
     // Use the official Google GenAI SDK for Node.js (dynamic import for server environment)
-    import('@google/genai')
-        .then(({ GoogleGenAI }) => {
-            const ai = new GoogleGenAI({ apiKey });
-            return ai.models.generateContent({
-                model,
-                contents,
-                config: generationConfig,
+    try {
+        const { GoogleGenAI } = await import('@google/genai');
+
+        const ai = new GoogleGenAI({ apiKey });
+
+        const response = await ai.models.generateContent({
+            model,
+            contents,
+            config: generationConfig,
+        });
+
+        const actualTokenCount = extractTokenCount(response);
+
+        const raw =
+            response?.text ??
+            response?.candidates?.[0]?.content?.parts?.[0]?.text ??
+            response?.candidates?.[0]?.content?.parts?.find((p) => p.text)
+                ?.text ??
+            (response?.candidates?.[0]?.content?.parts
+                ? response.candidates[0].content.parts
+                      .map((p) => p.text)
+                      .join('\n')
+                : null) ??
+            (typeof response === 'string' ? response : null);
+
+        if (!raw) {
+            console.error('[analyze] no usable content in upstream response', {
+                response,
             });
-        })
-        .then((response) => {
-            // Extract token usage from response
-            const actutalTokenCount = extractTokenCount(response);
+            return res
+                .status(502)
+                .json({ error: 'No usable content in upstream response' });
+        }
 
-            // SDK exposes a .text convenience prop when content is text
-            const raw =
-                response?.text ??
-                response?.candidates?.[0]?.content?.parts?.[0]?.text ??
-                response?.candidates?.[0]?.content?.parts?.find((p) => p.text)
-                    ?.text ??
-                (response?.candidates?.[0]?.content?.parts
-                    ? response?.candidates?.[0]?.content?.parts
-                          .map((p) => p.text)
-                          .join('\n')
-                    : null) ??
-                (typeof response === 'string' ? response : null);
-
-            if (!raw) {
-                console.error(
-                    '[analyze] no usable content in upstream response',
-                    {
-                        response,
-                    }
-                );
-                return res
-                    .status(502)
-                    .json({ error: 'No usable content in upstream response' });
-            }
-
-            let parsed;
-            try {
-                parsed = JSON.parse(raw);
-            } catch (err) {
-                const showRaw = process.env.NODE_ENV !== 'production';
-                console.error(
-                    '[analyze] failed to parse JSON from model:',
-                    err.message
-                );
-                return res.status(502).json({
-                    error: 'AI returned invalid JSON',
-                    ...(showRaw ? { raw: raw.slice(0, 500) } : {}),
-                });
-            }
-
-            // Normalize + validate to ensure the client receives the exact shape the UI expects.
-            try {
-                const normalized = normalizeAnalysis(parsed);
-
-                // Log token usage for monitoring
-                console.log(
-                    `[analyze] Request completed. Tokens used: ${actutalTokenCount}, Response size: ${JSON.stringify(normalized).length} bytes`
-                );
-
-                return res.status(200).json(normalized);
-            } catch (err) {
-                console.error('Normalization/validation failed:', err.message);
-                const showRaw = process.env.NODE_ENV !== 'production';
-                return res.status(502).json({
-                    error: 'AI output did not match expected schema',
-                    ...(showRaw ? { details: err.message } : {}),
-                });
-            }
-        })
-        .catch((err) => {
+        let parsed;
+        try {
+            parsed = JSON.parse(raw);
+        } catch (err) {
+            const showRaw = process.env.NODE_ENV !== 'production';
             console.error(
-                '[analyze] GenAI SDK error:',
-                err.message,
-                err.status
+                '[analyze] failed to parse JSON from model:',
+                err.message
             );
+            return res.status(502).json({
+                error: 'AI returned invalid JSON',
+                ...(showRaw ? { raw: raw.slice(0, 500) } : {}),
+            });
+        }
 
-            // Handle specific rate limit errors from Gemini API
-            if (err.status === 429) {
-                res.setHeader('Retry-After', '60');
-                return res.status(429).json({
-                    error: 'Gemini API rate limit exceeded. Try again in a minute.',
-                    type: 'api_rate_limit',
-                });
-            }
+        const normalized = normalizeAnalysis(parsed);
 
-            // Handle quota exceeded errors
-            if (err.status === 403 || err.message?.includes('quota')) {
-                return res.status(503).json({
-                    error: 'Daily API quota exceeded. Try again tomorrow.',
-                    type: 'quota_exceeded',
-                });
-            }
+        console.log(
+            `[analyze] Request completed. Tokens used: ${actualTokenCount}`
+        );
 
-            // Generic API errors
-            if (err.status) {
-                const showDetails = process.env.NODE_ENV !== 'production';
-                return res.status(502).json({
-                    error: 'Upstream API error',
-                    ...(showDetails
-                        ? { status: err.status, message: err.message }
-                        : {}),
-                });
-            }
+        return res.status(200).json(normalized);
+    } catch (err) {
+        console.error('[analyze] GenAI SDK error:', err.message, err.status);
 
-            return res.status(500).json({
-                error: 'Internal server error',
-                ...(process.env.NODE_ENV !== 'production'
-                    ? { details: err.message }
+        if (err.status === 429) {
+            res.setHeader('Retry-After', '60');
+            return res.status(429).json({
+                error: 'Gemini API rate limit exceeded. Try again in a minute.',
+                type: 'api_rate_limit',
+            });
+        }
+
+        if (err.status === 403 || err.message?.includes('quota')) {
+            return res.status(503).json({
+                error: 'Daily API quota exceeded. Try again tomorrow.',
+                type: 'quota_exceeded',
+            });
+        }
+
+        if (err.status) {
+            const showDetails = process.env.NODE_ENV !== 'production';
+            return res.status(502).json({
+                error: 'Upstream API error',
+                ...(showDetails
+                    ? { status: err.status, message: err.message }
                     : {}),
             });
+        }
+
+        return res.status(500).json({
+            error: 'Internal server error',
+            ...(process.env.NODE_ENV !== 'production'
+                ? { details: err.message }
+                : {}),
         });
+    }
 }
