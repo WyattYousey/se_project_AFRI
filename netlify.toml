@@ -1,0 +1,45 @@
+# Netlify Configuration for AFRI
+# Enables KV for distributed rate limiting
+
+[build]
+  command = "npm run build"
+  functions = "netlify/functions"
+  publish = "dist"
+
+# Environment variables
+# Set GENAI_API_KEY in Netlify dashboard (Site settings → Build & deploy → Environment)
+[[env]]
+  title = "Production"
+  [env.production]
+    GENAI_API_KEY = ""  # Set this in Netlify dashboard
+    GEMINI_MODEL = "gemini-2.5-flash"
+
+[[env]]
+  title = "Preview"
+  [env.preview]
+    GENAI_API_KEY = ""
+
+# Redirects for SPA
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://generativelanguage.googleapis.com"
+
+# Rate limit configuration via environment (optional)
+# These are handled by rateLimiter.js using Netlify KV
