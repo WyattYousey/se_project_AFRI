@@ -7,6 +7,18 @@ import analyzeHandler from './src/api/analyze.js';
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [react()],
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['react', 'react-dom'],
+                    pdf: ['@react-pdf/renderer'],
+                    genai: ['@google/genai'],
+                },
+            },
+        },
+        chunkSizeWarningLimit: 1500,
+    },
     configureServer(server) {
         server.middlewares.use((req, res, next) => {
             const isAnalyzePath =

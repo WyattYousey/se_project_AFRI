@@ -4,7 +4,7 @@ import mockAnalysis from '../mocks/mockAnalysis';
 
 const USE_MOCK_ANALYSIS = false;
 
-const AppContext = createContext();
+export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
     const [activeChangeId, setActiveChangeId] = useState(null);
